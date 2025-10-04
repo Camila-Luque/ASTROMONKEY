@@ -1,0 +1,212 @@
+Buscando archivo: sbdb_query_results.csv
+Datos cargados. 911 asteroides disponibles.
+
+Primeros datos cargados:
+                     full_name      h
+0        1566 Icarus (1949 MA)  16.53
+1    1620 Geographos (1951 RA)  15.27
+2        1862 Apollo (1932 HA)  16.08
+3         1981 Midas (1973 EA)  15.25
+4        2101 Adonis (1936 CA)  18.69
+--------------------------------------------------
+SIMULACIÓN DE IMPACTO: 1566 Icarus (1949 MA)
+--------------------------------------------------
+2        1862 Apollo (1932 HA)  16.08
+3         1981 Midas (1973 EA)  15.25
+4        2101 Adonis (1936 CA)  18.69
+--------------------------------------------------
+SIMULACIÓN DE IMPACTO: 1566 Icarus (1949 MA)
+--------------------------------------------------
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+2        1862 Apollo (1932 HA)  16.08
+3         1981 Midas (1973 EA)  15.25
+4        2101 Adonis (1936 CA)  18.69
+--------------------------------------------------
+SIMULACIÓN DE IMPACTO: 1566 Icarus (1949 MA)
+--------------------------------------------------
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+2        1862 Apollo (1932 HA)  16.08
+3         1981 Midas (1973 EA)  15.25
+4        2101 Adonis (1936 CA)  18.69
+--------------------------------------------------
+SIMULACIÓN DE IMPACTO: 1566 Icarus (1949 MA)
+--------------------------------------------------
+SIMULACIÓN DE IMPACTO: 1566 Icarus (1949 MA)
+--------------------------------------------------
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+
+
+
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+  Punto de Impacto (Lat/Lng): -12.046, -77.043
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Magnitud Absoluta (H):      16.53
+  Velocidad Asumida:          20.0 km/s
+  Velocidad Asumida:          20.0 km/s
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+
+
+
+
+
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+
+
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  --- RESULTADOS CLAVE PARA EL DASHBOARD ---
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Diámetro Estimado:          1721.69 metros
+  Energía Liberada:           344876.67 Megatones de TNT
+  Energía Liberada:           344876.67 Megatones de TNT
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+
+
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+PS C:\Users\LENOVO\OneDrive - Grupo Educad\7. IDEA_LAB\7. SNA & SA\11. SNA & NLP_new branch 2025\SNA_NLP_SCRIPTS>
+  Radio de Destrucción (km):  105.19 km
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+  Diámetro del Cráter (km):   25.825 km
+--------------------------------------------------
+--------------------------------------------------
