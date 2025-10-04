@@ -1,1 +1,331 @@
 
+
+
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from pydantic import BaseModel
+import pandas as pd
+import numpy as np
+import io
+import math
+
+# --- 1. CONFIGURACIÓN GLOBAL DE CONSTANTES ---
+# Densidad media de cuerpos silíceos (kg/m^3)
+DENSITY_SILICEOUS = 2700
+# Velocidad de Impacto Asumida (m/s) - Un valor típico para impactos orbitales
+V_IMPACT_ASSUMED = 20000  # 20 km/s
+# Albedo promedio asumido para asteroide tipo S (adimensional)
+ALBEDO_ASSUMED = 0.15
+# Conversión de Julios a Megatones (MT) de TNT
+JOULES_TO_MEGATONS = 4.184e15
+
+app = FastAPI(title="Simulador de Impacto de Meteoritos (Backend)")
+
+# --- 2. MODELO DE ENTRADA (Input desde el Frontend) ---
+class ImpactRequest(BaseModel):
+    """Define los parámetros que React enviará a este endpoint."""
+    full_name: str # Nombre del asteroide seleccionado
+    lat: float     # Latitud del punto de impacto (grados)
+    lng: float     # Longitud del punto de impacto (grados)
+
+# --- 3. FUNCIONES DE CÁLCULO ---
+
+def calculate_diameter(H: float, pv: float = ALBEDO_ASSUMED) -> float:
+    """
+    Calcula el diámetro (D) en kilómetros a partir de la magnitud absoluta (H) y el albedo (pv).
+    Fórmula: log10(D) = 3.13 - 0.2H - 0.5 * log10(pv)
+    """
+    try:
+        # log10(D) = 3.13 - 0.2*H - log10(sqrt(pv)) => 3.13 - 0.2*H - 0.5*log10(pv)
+        log_D = 3.13 - 0.2 * H - 0.5 * math.log10(pv)
+        D_km = 10**log_D
+        return D_km
+    except ValueError:
+        return 0.0 # Manejo de logaritmos de valores no positivos
+
+def calculate_impact_metrics(H_magnitude: float, V_imp: float = V_IMPACT_ASSUMED, density: float = DENSITY_SILICEOUS) -> dict:
+    """
+    Calcula la masa, energía y métricas de daño a partir de H.
+    Retorna métricas en unidades de impacto (MT, km).
+    """
+
+    # 1. Calcular Diámetro (D) en metros
+    D_km = calculate_diameter(H_magnitude)
+    D_m = D_km * 1000
+
+    # 2. Calcular Masa (M) en kg
+    radius_m = D_m / 2
+    volume = (4/3) * math.pi * (radius_m**3)
+    mass = volume * density
+
+    # 3. Calcular Energía Cinética (Ek) en Julios y Megatones
+    Ek_joules = 0.5 * mass * (V_imp**2)
+    Ek_megatons = Ek_joules / JOULES_TO_MEGATONS
+
+    # --- CÁLCULOS DE DAÑO (Fórmulas simplificadas para el dashboard) ---
+
+    # Radio de Destrucción (R_blast)
+    # Fórmula simplificada de escalado para un radio de daño severo (ej. 5 psi sobrepresión)
+    # Basada en E^(1/3)
+    # El coeficiente (1.5) es un valor de escalado simplificado.
+    R_blast_km = 1.5 * (Ek_megatons**(1/3))
+
+    # Diámetro del Cráter (D_crater)
+    # Asumimos que el diámetro del cráter es ~15 veces el diámetro del impactador (D_m)
+    D_crater_m = 15 * D_m
+    D_crater_km = D_crater_m / 1000
+
+    return {
+        "D_diameter_m": round(D_m, 2),
+        "M_mass_kg": float(f'{mass:.2e}'), # Notación científica
+        "Ek_megatons": round(Ek_megatons, 2),
+        "R_blast_km": round(R_blast_km, 2),
+        "D_crater_km": round(D_crater_km, 3)
+    }
+
+# Variable global para almacenar el DataFrame cargado
+meteorite_df = None
+
+# --- 4. ENDPOINTS DE LA API ---
+
+@app.post("/upload-data/")
+async def upload_data(file: UploadFile = File(...)):
+    """
+    Endpoint para cargar el archivo CSV del usuario y parsear los datos.
+    Inicializa el DataFrame global.
+    """
+    global meteorite_df
+    try:
+        # Lee el contenido del archivo subido
+        contents = await file.read()
+
+        # Usa io.StringIO para leer el CSV
+        meteorite_df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+
+        # Limpieza de nombres de columna (quitando comillas y espacios si existen)
+        meteorite_df.columns = meteorite_df.columns.str.replace(r'\"|\s+', '', regex=True).str.lower()
+
+        # Validar columnas cruciales
+        required_cols = ['full_name', 'h']
+        if not all(col in meteorite_df.columns for col in required_cols):
+            raise HTTPException(status_code=400, detail=f"El CSV debe contener las columnas: {required_cols}")
+
+        # Conversión de tipos (H debe ser numérico)
+        meteorite_df['h'] = pd.to_numeric(meteorite_df['h'], errors='coerce')
+        meteorite_df.dropna(subset=['h'], inplace=True)
+
+        return {"message": "Datos de asteroides cargados exitosamente.", "count": len(meteorite_df)}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al procesar el archivo: {e}")
+
+@app.get("/asteroids-list/")
+def get_asteroids_list():
+    """Devuelve la lista de nombres y H disponibles para el frontend."""
+    global meteorite_df
+    if meteorite_df is None:
+        raise HTTPException(status_code=404, detail="No se han cargado los datos. Por favor, cargue el archivo CSV primero.")
+
+    return meteorite_df[['full_name', 'h']].to_dict('records')
+
+
+@app.post("/simulate/")
+def simulate_impact(request: ImpactRequest):
+    """
+    Endpoint principal. Recibe la selección y calcula las métricas de impacto.
+    """
+    global meteorite_df
+    if meteorite_df is None:
+        raise HTTPException(status_code=404, detail="Datos no cargados. Por favor, cargue el archivo CSV.")
+
+    # 1. Buscar H para el asteroide seleccionado
+    H_value = meteorite_df[meteorite_df['full_name'].str.strip() == request.full_name.strip()]['h'].iloc[0]
+
+    if pd.isna(H_value):
+        raise HTTPException(status_code=400, detail=f"Magnitud H no válida para {request.full_name}")
+
+    # 2. Realizar los cálculos
+    results = calculate_impact_metrics(H_value)
+
+    # 3. Formatear la respuesta
+    response = {
+        "asteroid_name": request.full_name.strip(),
+        "impact_coords": {"lat": request.lat, "lng": request.lng},
+        "H_magnitude": H_value,
+        "V_impact_assumed_km_s": V_IMPACT_ASSUMED / 1000,
+        "density_assumed_kg_m3": DENSITY_SILICEOUS,
+        "results": results
+    }
+
+    return response
+
+# --- 5. INSTRUCCIONES DE EJECUCIÓN ---
+# Para ejecutar la API, abre tu terminal en el directorio de este archivo y ejecuta:
+# uvicorn app:app --reload
+
+
+
+# Instalar pandas y numpy si no están (Colab ya los tiene, pero es buena práctica)
+
+import pandas as pd
+import numpy as np
+import math
+import io
+import os
+
+# --- 1. CONFIGURACIÓN DE CONSTANTES FÍSICAS ---
+# Densidad media de cuerpos silíceos (kg/m^3)
+DENSITY_SILICEOUS = 2700
+# Velocidad de Impacto Asumida (m/s) - Un valor típico para impactos orbitales
+V_IMPACT_ASSUMED = 20000  # 20 km/s
+# Albedo promedio asumido para asteroide tipo S (adimensional)
+ALBEDO_ASSUMED = 0.15
+# Conversión de Julios a Megatones (MT) de TNT
+JOULES_TO_MEGATONS = 4.184e15
+
+# Inicializar DataFrame global
+meteorite_df = None
+
+def load_data_from_colab(file_name):
+    """Carga el archivo CSV en un DataFrame y limpia las columnas."""
+    global meteorite_df
+    print(f"Buscando archivo: {file_name}")
+
+    # Intenta cargar el archivo
+    try:
+        # Colab a menudo requiere que el archivo esté en el entorno de ejecución
+        # Si el archivo está en el entorno de Colab, se carga directamente
+        df = pd.read_csv(file_name)
+    except FileNotFoundError:
+        print("El archivo no se encontró. Asegúrese de haberlo subido al entorno de Colab.")
+        return None
+
+    # Limpieza de nombres de columna (quitando comillas y espacios)
+    df.columns = df.columns.str.replace(r'\"|\s+', '', regex=True).str.lower()
+
+    # Renombrar columnas para facilitar el acceso si tienen nombres con espacios o caracteres especiales
+    df.rename(columns={'full_name': 'full_name', 'h': 'h'}, inplace=True)
+
+    # Conversión de tipos (H debe ser numérico)
+    df['h'] = pd.to_numeric(df['h'], errors='coerce')
+    df.dropna(subset=['h'], inplace=True)
+
+    meteorite_df = df
+    print(f"Datos cargados. {len(meteorite_df)} asteroides disponibles.")
+    return meteorite_df
+
+# *** EJECUTAR EN COLAB: Asegúrate de que tu archivo esté en el entorno de Colab ***
+# Reemplaza 'sbdb_query_results (3) (91).xlsx - sbdb_query_results (3) (1).csv'
+# con el nombre exacto de tu archivo CSV.
+file_name = 'sbdb_query_results.csv'
+load_data_from_colab(file_name)
+
+# Mostrar los primeros asteroides cargados
+if meteorite_df is not None:
+    print("\nPrimeros datos cargados:")
+    print(meteorite_df[['full_name', 'h']].head())
+
+
+
+def calculate_diameter(H: float, pv: float = ALBEDO_ASSUMED) -> float:
+    """
+    Calcula el diámetro (D) en kilómetros a partir de la magnitud absoluta (H) y el albedo (pv).
+    Fórmula: log10(D) = 3.13 - 0.2H - log10(sqrt(pv))
+    Retorna D en metros.
+    """
+    try:
+        # Fórmula: log10(D_km) = 3.13 - 0.2*H - 0.5*log10(pv)
+        log_D_km = 3.13 - 0.2 * H - 0.5 * math.log10(pv)
+        D_km = 10**log_D_km
+        return D_km * 1000 # Convertir a metros
+    except ValueError:
+        return 0.0
+
+def simulate_impact_colab(asteroid_name: str, lat: float, lng: float) -> dict:
+    """
+    Recibe el nombre del asteroide y coordenadas, busca H y calcula las métricas de impacto.
+    """
+    global meteorite_df
+
+    if meteorite_df is None:
+        raise ValueError("Error: Los datos de asteroides no se han cargado.")
+
+    # 1. Buscar H para el asteroide seleccionado
+    try:
+        # Usamos .str.strip() para evitar problemas con espacios iniciales/finales
+        H_value = meteorite_df[meteorite_df['full_name'].str.strip() == asteroid_name.strip()]['h'].iloc[0]
+    except IndexError:
+        raise ValueError(f"Asteroide '{asteroid_name}' no encontrado en el dataset.")
+
+    if pd.isna(H_value):
+        raise ValueError(f"Magnitud H no válida para el asteroide '{asteroid_name}'.")
+
+    # 2. Calcular Diámetro (D) en metros
+    D_m = calculate_diameter(H_value)
+
+    # 3. Calcular Masa (M) en kg
+    radius_m = D_m / 2
+    volume = (4/3) * math.pi * (radius_m**3)
+    mass = volume * DENSITY_SILICEOUS
+
+    # 4. Calcular Energía Cinética (Ek) en Megatones
+    Ek_joules = 0.5 * mass * (V_IMPACT_ASSUMED**2)
+    Ek_megatons = Ek_joules / JOULES_TO_MEGATONS
+
+    # --- CÁLCULOS DE DAÑO (Métricas para el Dashboard) ---
+
+    # Radio de Destrucción (R_blast)
+    # Fórmula de escalado para daño severo (R ~ E^(1/3)) en km
+    R_blast_km = 1.5 * (Ek_megatons**(1/3))
+
+    # Diámetro del Cráter (D_crater)
+    # Aproximación: Diámetro del cráter (D_crater) es ~15 veces el diámetro del impactador (D_m)
+    D_crater_m = 15 * D_m
+    D_crater_km = D_crater_m / 1000
+
+    return {
+        "asteroid_name": asteroid_name.strip(),
+        "H_magnitude": H_value,
+        "impact_coords": {"lat": lat, "lng": lng},
+        "V_impact_assumed_km_s": V_IMPACT_ASSUMED / 1000,
+        "results": {
+            "D_diameter_m": round(D_m, 2),
+            "M_mass_kg": float(f'{mass:.2e}'),
+            "Ek_megatons": round(Ek_megatons, 2),
+            "R_blast_km": round(R_blast_km, 2), # Para dibujar el radio en Leaflet
+            "D_crater_km": round(D_crater_km, 3) # Para mostrar el tamaño del cráter
+        }
+    }
+
+
+
+
+# --- PARÁMETROS DE ENTRADA ---
+ASTEROID_TO_SIMULATE = "1566 Icarus (1949 MA)"
+LAT_IMPACT = -12.046 # Latitud de Lima, Perú
+LNG_IMPACT = -77.043 # Longitud de Lima, Perú
+
+# --- EJECUTAR ---
+try:
+    simulation_output = simulate_impact_colab(
+        asteroid_name=ASTEROID_TO_SIMULATE,
+        lat=LAT_IMPACT,
+        lng=LNG_IMPACT
+    )
+
+    # IMPRIMIR RESULTADOS FINALES PARA EL DASHBOARD
+    print("--------------------------------------------------")
+    print(f"SIMULACIÓN DE IMPACTO: {simulation_output['asteroid_name']}")
+    print("--------------------------------------------------")
+    print(f"  Punto de Impacto (Lat/Lng): {simulation_output['impact_coords']['lat']}, {simulation_output['impact_coords']['lng']}")
+    print(f"  Magnitud Absoluta (H):      {simulation_output['H_magnitude']}")
+    print(f"  Velocidad Asumida:          {simulation_output['V_impact_assumed_km_s']} km/s")
+    print("\n  --- RESULTADOS CLAVE PARA EL DASHBOARD ---")
+    print(f"  Diámetro Estimado:          {simulation_output['results']['D_diameter_m']} metros")
+    print(f"  Energía Liberada:           {simulation_output['results']['Ek_megatons']} Megatones de TNT")
+    print(f"  Radio de Destrucción (km):  {simulation_output['results']['R_blast_km']} km")
+    print(f"  Diámetro del Cráter (km):   {simulation_output['results']['D_crater_km']} km")
+    print("--------------------------------------------------")
+
+except Exception as e:
+    print(f"Ocurrió un error en la simulación: {e}")
+
